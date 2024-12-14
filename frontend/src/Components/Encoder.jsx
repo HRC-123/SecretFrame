@@ -111,9 +111,13 @@ const handleGenerate = async () => {
   }
 
   const handleMail = async () => {
+
+    
+   
     const response = await mailReciever(encodedImage, email);
 
-    console.log(response);
+    console.log("Response from server:", response.data);
+    //  alert("Mail sent successfully!");
 
     //Toast mail sent successfully
   }

@@ -68,14 +68,16 @@ export const destroySecret = async (data) => {
 };
 
 
-export const mailReciever = async (imageFile,email) => {
+export const mailReciever = async (imageBuffer,email) => {
   try {
     const formData = new FormData();
-
-    // Append form data only if the values are present
-    if (imageFile) formData.append("image", imageFile); // Image file
-    if (email) formData.append("email", email); // Receiver's email
-
+   if (imageBuffer) {
+     const blob = new Blob([imageBuffer], { type: "image/jpeg" });
+     formData.append("image", blob, "encoded_image.jpg");
+   }
+   if (email) {
+     formData.append("email", email);
+   }
     // Log the FormData to debug its contents before sending it
     for (let pair of formData.entries()) {
       console.log(pair[0] + ": " + pair[1]);

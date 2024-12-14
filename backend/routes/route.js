@@ -8,7 +8,7 @@ const upload = multer({ storage });
 const router = express.Router();
 
 router.post('/encode',upload.single('image'),Encode);
-router.post("/mailReciever", upload.single("image"), mailReciever);
+router.post("/mailReciever",upload.single('image'), mailReciever);
 router.get('/decode',Decode);
 router.post('/destroy',Destroy);
 
