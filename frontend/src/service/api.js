@@ -116,3 +116,52 @@ export const mailReciever = async (imageBuffer,email) => {
     console.error("Error encoding secret:", error);
   }
 };
+
+
+export const mailRecieverSecret = async (secret, email) => {
+  try {
+    const formData = new FormData();
+    
+    console.log(secret);
+    console.log(email);
+
+   if (secret) {
+     formData.append("secret", secret);
+   }
+   if (email) {
+     formData.append("email", email);
+   }
+
+   // Log the FormData to debug its contents before sending it
+   for (let pair of formData.entries()) {
+     console.log(pair[0] + ": " + pair[1]);
+   }
+
+   try {
+     // Send the formData using axios
+     const response = await axios.post(
+       `${API_URL}/mailRecieverSecret`,
+       formData
+     );
+
+     console.log("Response:", response.data); // Log the response for further debugging
+   } catch (error) {
+     console.error("Error sending FormData:", error);
+   }
+
+
+    // Handle the response to download the encoded image
+    // if (response.data) {
+    //   const contentType = response.headers["content-type"];
+    //   const blob = new Blob([response.data], { type: contentType });
+    //   const link = document.createElement("a");
+    //   link.href = URL.createObjectURL(blob);
+    //   link.download = "encoded_image.png"; // Use .png or .jpg depending on the type of image
+    //   link.click(); // Trigger the download
+    // }
+
+    
+  } catch (error) {
+    console.error("Error encoding secret:", error);
+  }
+};

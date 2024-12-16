@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
-import  Session from "../model/Session.js";
+import Session from "../model/Session.js";
 import { randomInt } from "crypto";
 dotenv.config();
 
@@ -49,17 +49,14 @@ export const Encode = async (req, res) => {
   console.log(encrypted);
   console.log(encryptedSecret);
 
-   const sessionData = new Session({
-     senderMail: senderEmail,
-     randomNumber: encryptedSecret,
-     recieverMail: recieverEmail,
-   });
+  const sessionData = new Session({
+    senderMail: senderEmail,
+    randomNumber: encryptedSecret,
+    recieverMail: recieverEmail,
+  });
 
-   const savedSession = await sessionData.save();
-   console.log("Session saved successfully:", savedSession);
-
-
-
+  const savedSession = await sessionData.save();
+  console.log("Session saved successfully:", savedSession);
 
   // Set headers for downloading the image
   // res.setHeader("Content-Type", req.file.mimetype);
@@ -74,35 +71,34 @@ export const Encode = async (req, res) => {
   // Prepare the data to be added to the image (can be base64 encoded, or as a string)
   const encodedData = JSON.stringify({
     hash: hash,
-   
+
     encryptedText: encrypted,
   });
 
   // Use sharp to embed the data into the image
-sharp(req.file.buffer)
-  .toBuffer()
-  .then((imageBuffer) => {
-    // Embed the encoded data by appending it to the end of the image as a comment
-    const combinedBuffer = Buffer.concat([
-      imageBuffer,
-      Buffer.from(`\n<!-- ${encodedData} -->`), // Embed your custom data
-    ]);
+  sharp(req.file.buffer)
+    .toBuffer()
+    .then((imageBuffer) => {
+      // Embed the encoded data by appending it to the end of the image as a comment
+      const combinedBuffer = Buffer.concat([
+        imageBuffer,
+        Buffer.from(`\n<!-- ${encodedData} -->`), // Embed your custom data
+      ]);
 
-    // Set headers for downloading the image
-    res.setHeader("Content-Type", req.file.mimetype);
-    res.setHeader(
-      "Content-Disposition",
-      'attachment; filename="encoded_image.jpg"'
-    );
+      // Set headers for downloading the image
+      res.setHeader("Content-Type", req.file.mimetype);
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="encoded_image.jpg"'
+      );
 
-    // Send the combined buffer (image + data) back to the frontend
-    return res.status(200).send(combinedBuffer);
-  })
-  .catch((err) => {
-    console.error("Error processing the image:", err);
-    return res.status(500).json({ msg: "Error processing the image" });
-  });
-
+      // Send the combined buffer (image + data) back to the frontend
+      return res.status(200).send(combinedBuffer);
+    })
+    .catch((err) => {
+      console.error("Error processing the image:", err);
+      return res.status(500).json({ msg: "Error processing the image" });
+    });
 };
 
 export const Decode = async (req, res) => {
@@ -129,7 +125,7 @@ export const Decode = async (req, res) => {
 
     const encodedData = JSON.parse(encodedDataMatch[1]);
     const { hash, encryptedText } = encodedData;
-    let encryptedSecret = '';
+    let encryptedSecret = "";
     console.log(hash);
     console.log(encryptedText);
     // console.log(encryptedSecret);
@@ -150,32 +146,28 @@ export const Decode = async (req, res) => {
     //    return res.status(400).json({ msg: "Failed to decrypt secret key" });
     //  }
 
-
     // Loop through all sessions and validate hash
     for (const session of sessions) {
-
       encryptedSecret = session.randomNumber;
 
       const randomNumberDecrypt = CryptoJS.AES.decrypt(
-      encryptedSecret,
-      process.env.MASTER_KEY
+        encryptedSecret,
+        process.env.MASTER_KEY
       ).toString(CryptoJS.enc.Utf8);
-
 
       console.log(randomNumberDecrypt);
       secretUUID = randomNumberDecrypt;
-      
 
       const combinedString = `${session.senderMail}:${session.recieverMail}:${secretUUID}`;
-      
+
       // const combinedStringHash = bcrypt.hashSync(combinedString, 12);
       // Compare the plain combined string against the saved hash
 
       console.log(combinedString);
       if (bcrypt.compareSync(combinedString, hash)) {
-        console.log(true)
+        console.log(true);
         validSession = session;
-       
+
         break;
       }
     }
@@ -261,6 +253,51 @@ export const mailReciever = async (req, res) => {
         contentType: req.file.mimetype, // Dynamically setting MIME type (e.g., image/jpeg or image/png)
       },
     ],
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+      return res.status(500).json({ msg: "Failed to send email" });
+    }
+    res.status(200).json({ msg: "Email sent successfully", info });
+  });
+};
+
+export const mailRecieverSecret = async (req, res) => {
+  console.log(req.body);
+  const { secret, email } = req?.body;
+
+   console.log("Mail Reciever Secret");
+   console.log(secret);
+   console.log(email);
+
+  if (!email || !secret) {
+    return res.status(400).json({ msg: "Email is required" });
+  }
+
+ 
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.USER,
+      pass: process.env.PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.USER,
+    to: email,
+    subject: "Decoded Secret ",
+    html: `
+      <p>Dear,</p>
+<p>I hope you're doing well!</p>
+<p>As per our previous discussion, I’m sharing with you the decoded secret message from the image. Below is the message:</p>
+<p><strong>Secret Message: </strong> ${secret}</p>
+<p>Best regards,<br/>Secret Frame</p>
+
+    `,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

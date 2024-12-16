@@ -11,21 +11,21 @@ import Encoder from "./Components/Encoder";
 import Decoder from "./Components/Decoder";
 const AppRoutes = () => {
   // Check localStorage for email to determine authentication state
-  const email = localStorage.getItem("email");
+  const email = localStorage.getItem("email") || '';
 
   return (
     <Routes>
       {/* Public Route */}
-      <Route path="/" element={email ? <Navigate to="/encode" /> : <Login />} />
+      <Route path="/" element={email ? <Navigate to="/encoder" /> : <Login />} />
 
       {/* Protected Route */}
       <Route
-        path="/encode"
+        path="/encoder"
         element={email ? <Encoder /> : <Navigate to="/" />}
       />
 
       <Route
-        path="/decode"
+        path="/decoder"
         element={email ? <Decoder /> : <Navigate to="/" />}
       />
 

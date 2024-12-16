@@ -1,5 +1,5 @@
 import express from 'express';
-import { Encode ,Decode,Destroy,mailReciever} from '../controllers/controller.js';
+import { Encode ,Decode,Destroy,mailReciever,mailRecieverSecret} from '../controllers/controller.js';
 import multer from "multer";
 
 // Set up storage engine (you can customize this)
@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post('/encode',upload.single('image'),Encode);
 router.post("/mailReciever",upload.single('image'), mailReciever);
+router.post("/mailRecieverSecret",upload.none(),mailRecieverSecret);
 router.post("/decode", upload.single("image"), Decode);
 router.post('/destroy',Destroy);
 
