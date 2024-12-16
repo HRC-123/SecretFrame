@@ -7,7 +7,7 @@ const API_URL = "http://localhost:9000";
 export const encodeSecret = async (
   imageFile,
   secretText,
-  email,
+  recieverEmail,
   senderEmail
 ) => {
   try {
@@ -16,7 +16,7 @@ export const encodeSecret = async (
     // Append form data only if the values are present
     if (imageFile) formData.append("image", imageFile); // Image file
     if (secretText) formData.append("st", secretText); // Secret text
-    if (email) formData.append("email", email); // Receiver's email
+    if (recieverEmail) formData.append("recieverEmail", recieverEmail); // Receiver's email
     if (senderEmail) formData.append("senderEmail", senderEmail); // Sender's email
 
     // Log the FormData to debug its contents before sending it
@@ -49,9 +49,19 @@ export const encodeSecret = async (
 };
 
 
-export const decodeSecret = async (data) => {
+export const decodeSecret = async (image,email) => {
   try {
-    const response = await axios.post(`${API_URL}/decode`, data);
+    const formData = new FormData();
+    formData.append("image", image);
+    formData.append("recieverEmail", email);
+
+    const response = await axios.post(`${API_URL}/decode`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error.response.data || "Error decoding secret";

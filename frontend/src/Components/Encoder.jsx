@@ -15,7 +15,8 @@ import {
 import { encodeSecret,mailReciever } from "../service/api";
 const Encoder = () => {
   const [st, setSt] = useState("");
-  const [email, setEmail] = useState("");
+  const [recieverEmail, setRecieverEmail] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
   const [manual, setManual] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -46,9 +47,9 @@ const Encoder = () => {
       errors.st = "Secret text is required";
     }
 
-    if (!email.trim()) {
+    if (!recieverEmail.trim()) {
       errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(recieverEmail)) {
       errors.email = "Invalid email format";
     }
 
@@ -65,13 +66,17 @@ const handleGenerate = async () => {
     setGenerated(false);
     // setEncodingProgress(0);
 
+    const emailSender = localStorage.getItem("email"); 
+
+    setSenderEmail(emailSender);
+
     try {
       // Call the encodeSecret function to get the encoded image
       const encodedImageBuffer = await encodeSecret(
         selectedFile,
         st,
-        email,
-        "hrc@gmail.com"
+        recieverEmail,
+        emailSender
       );
 
       if (encodedImageBuffer) {
@@ -98,7 +103,7 @@ const handleGenerate = async () => {
   
   const handleReset = () => {
     setSt("");
-    setEmail("");
+    setRecieverEmail("");
     setManual(false);
     setGenerated(false);
     setSelectedFile(null);
@@ -114,7 +119,7 @@ const handleGenerate = async () => {
 
     
    
-    const response = await mailReciever(encodedImage, email);
+    const response = await mailReciever(encodedImage, recieverEmail);
 
     console.log("Response from server:", response.data);
     //  alert("Mail sent successfully!");
@@ -193,8 +198,8 @@ const handleGenerate = async () => {
               id="email"
               name="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={recieverEmail}
+              onChange={(e) => setRecieverEmail(e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                 validationErrors.email
                   ? "border-red-500 focus:ring-red-300"

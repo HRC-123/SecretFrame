@@ -8,10 +8,10 @@ const sessionSchema = new mongoose.Schema(
       match: [/\S+@\S+\.\S+/, "Invalid email format"], // Regex validation for email
     },
     randomNumber: {
-      type: Number,
+      type: String,
       required: true,
     },
-    receiverMail: {
+    recieverMail: {
       type: String, // Corrected the type to "String"
       required: true,
       match: [/\S+@\S+\.\S+/, "Invalid email format"], // Regex validation for email

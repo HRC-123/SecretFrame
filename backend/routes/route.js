@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post('/encode',upload.single('image'),Encode);
 router.post("/mailReciever",upload.single('image'), mailReciever);
-router.get('/decode',Decode);
+router.post("/decode", upload.single("image"), Decode);
 router.post('/destroy',Destroy);
 
 
