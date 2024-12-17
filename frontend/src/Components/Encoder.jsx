@@ -17,15 +17,15 @@ import {
 import { encodeSecret, mailReciever } from "../service/api";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
+import { useGlobalContext } from "../context/GlobalContext";
 
 
 const Encoder = () => {
   const [st, setSt] = useState("");
   const [recieverEmail, setRecieverEmail] = useState("");
-  const [senderEmail, setSenderEmail] = useState("");
-  const [name, setName] = useState('');
-  const [profilePicture, setProfilePicture] = useState('');
+  // const [senderEmail, setSenderEmail] = useState("");
+  // const [name, setName] = useState('');
+  // const [profilePicture, setProfilePicture] = useState('');
   const [manual, setManual] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -36,22 +36,25 @@ const Encoder = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const emailSender = localStorage.getItem("email");
-    if (emailSender) {
-      setSenderEmail(emailSender);
-    }
+  const { googleLoginDetails, setGoogleLoginDetails } = useGlobalContext();
+  const { email:senderEmail, name, profilePicture } = googleLoginDetails;
 
-      const name = localStorage.getItem("name");
-      if (name) {
-        setName(name);
-    }
+  // useEffect(() => {
+  //   const emailSender = localStorage.getItem("email");
+  //   if (emailSender) {
+  //     setSenderEmail(emailSender);
+  //   }
+
+  //     const name = localStorage.getItem("name");
+  //     if (name) {
+  //       setName(name);
+  //   }
     
-      const profile = localStorage.getItem("profilePicture");
-      if (profile) {
-        setProfilePicture(profile);
-      }
-  }, []);
+  //     const profile = localStorage.getItem("profilePicture");
+  //     if (profile) {
+  //       setProfilePicture(profile);
+  //     }
+  // }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -133,6 +136,11 @@ const Encoder = () => {
 
   const handleLogout = () => {
     localStorage.clear();
+       setGoogleLoginDetails({
+         email: "",
+         name: "",
+         profilePicture: "",
+       });
     toast.success("Logged out successfully!");
     
       navigate("/");

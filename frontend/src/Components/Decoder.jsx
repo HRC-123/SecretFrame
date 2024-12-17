@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Upload,
   Lock,
@@ -18,35 +18,40 @@ import toast, { Toaster } from "react-hot-toast";
 import { decodeSecret, mailRecieverSecret } from "../service/api";
 import { useNavigate } from "react-router-dom";
 
+import { useGlobalContext } from "../context/GlobalContext";
+
 const Decoder = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [decodedSecret, setDecodedSecret] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
-  const [userEmail, setUserEmail] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
-  const [name, setName] = useState("");
+  // const [userEmail, setUserEmail] = useState("");
+  // const [profilePicture, setProfilePicture] = useState("");
+  // const [name, setName] = useState("");
   const fileInputRef = useRef(null);
   const profilePictureRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const emailFromStorage = localStorage.getItem("email");
-    const nameFromStorage = localStorage.getItem("name");
-    const profilePicFromStorage = localStorage.getItem("profilePicture");
+  const { googleLoginDetails, setGoogleLoginDetails } = useGlobalContext();
+  const { email, name, profilePicture } = googleLoginDetails;
 
-    if (emailFromStorage) {
-      setUserEmail(emailFromStorage);
-    }
+  // useEffect(() => {
+  //   const emailFromStorage = localStorage.getItem("email");
+  //   const nameFromStorage = localStorage.getItem("name");
+  //   const profilePicFromStorage = localStorage.getItem("profilePicture");
 
-    if (nameFromStorage) {
-      setName(nameFromStorage);
-    }
+  //   if (emailFromStorage) {
+  //     setUserEmail(emailFromStorage);
+  //   }
 
-    if (profilePicFromStorage) {
-      setProfilePicture(profilePicFromStorage);
-    }
-  }, []);
+  //   if (nameFromStorage) {
+  //     setName(nameFromStorage);
+  //   }
+
+  //   if (profilePicFromStorage) {
+  //     setProfilePicture(profilePicFromStorage);
+  //   }
+  // }, []);
 
 
   const handleFileChange = (e) => {
@@ -76,7 +81,7 @@ const Decoder = () => {
   const handleDecode = async () => {
     if (validateInputs()) {
       try {
-        const response = await decodeSecret(selectedFile, userEmail);
+        const response = await decodeSecret(selectedFile,email);
 
         if (response) {
           setDecodedSecret(response.secretText);
@@ -112,6 +117,12 @@ const Decoder = () => {
 
   const handleLogout = () => {
     localStorage.clear();
+    setGoogleLoginDetails({
+      email: '',
+      name: '',
+      profilePicture: ''
+    });
+
     toast.success("Logged out successfully!");
     
       navigate("/");
@@ -120,7 +131,7 @@ const Decoder = () => {
 
   const handleMail = async () => {
     try {
-      const response = await mailRecieverSecret(decodedSecret, userEmail);
+      const response = await mailRecieverSecret(decodedSecret, email);
       console.log(response);
       toast.success("Mail sent successfully!");
     } catch (error) {
