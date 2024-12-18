@@ -13,12 +13,14 @@ import {
   LogOut,
   ArrowRightCircle,
   UserCircle2,
+  House,
+  Dices,
+  Settings
 } from "lucide-react";
 import { encodeSecret, mailReciever } from "../service/api";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/GlobalContext";
-
 
 const Encoder = () => {
   const [st, setSt] = useState("");
@@ -32,12 +34,36 @@ const Encoder = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [encodedImage, setEncodedImage] = useState(null);
- const profilePictureRef = useRef(null);
+  const profilePictureRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+
+  useEffect(() => {
+    
+    const images = require.context(
+      "../../public/images",
+      false,
+      /\.(jpg|jpeg|png|gif|svg)$/
+    );
+
+    const imageKeys = images.keys();
+
+    // Generate a random number between 0 and the last index of the image array
+    const randomIndex = Math.floor(Math.random() * imageKeys.length);
+
+    // Select the random image
+    const selectedImage = images(imageKeys[randomIndex]);
+
+    setSelectedFile(selectedImage);
+
+    // console.log(selectedImage);
+  }, [manual]);
+
+
+
   const { googleLoginDetails, setGoogleLoginDetails } = useGlobalContext();
-  const { email:senderEmail, name, profilePicture } = googleLoginDetails;
+  const { email: senderEmail, name, profilePicture } = googleLoginDetails;
 
   // useEffect(() => {
   //   const emailSender = localStorage.getItem("email");
@@ -49,7 +75,7 @@ const Encoder = () => {
   //     if (name) {
   //       setName(name);
   //   }
-    
+
   //     const profile = localStorage.getItem("profilePicture");
   //     if (profile) {
   //       setProfilePicture(profile);
@@ -136,15 +162,14 @@ const Encoder = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-       setGoogleLoginDetails({
-         email: "",
-         name: "",
-         profilePicture: "",
-       });
+    setGoogleLoginDetails({
+      email: "",
+      name: "",
+      profilePicture: "",
+    });
     toast.success("Logged out successfully!");
-    
-      navigate("/");
-  
+
+    navigate("/");
   };
 
   const handleReset = () => {
@@ -166,14 +191,12 @@ const Encoder = () => {
       {/* Header */}
       <div className="flex justify-between items-center w-full max-w-5xl mb-6">
         <div className="flex items-center space-x-4">
-          {/* Profile Picture Upload */}
           <label className="cursor-pointer">
             {profilePicture ? (
               <img
                 src={profilePicture}
                 alt="Profile"
                 className="w-12 h-12 rounded-full object-cover border-2 border-indigo-500"
-               
               />
             ) : (
               <UserCircle2
@@ -189,10 +212,16 @@ const Encoder = () => {
         </div>
         <div className="flex space-x-4">
           <button
+            onClick={() => navigate("/")}
+            className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all gap-2"
+          >
+            <House size={20} /> Home
+          </button>
+          <button
             onClick={() => navigate("/decoder")}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all gap-2"
           >
-            <ArrowRightCircle size={20} /> Decode Page
+            <ArrowRightCircle size={20} /> Decoder Page
           </button>
           <button
             onClick={handleLogout}
@@ -267,108 +296,122 @@ const Encoder = () => {
             )}
           </div>
 
-          {/* Image Selection */}
-          <div>
-            <div className="flex justify-between mb-4">
+          {/* Actions */}
+          <div className="flex flex-col">
+            <div className="flex flex-row space-x-8 py-2 px-2">
               <button
-                onClick={() => setManual(false)}
-                className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-                  !manual
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-300 text-gray-700"
-                }`}
+                onClick={handleGenerate}
+                className="px-4 py-2 w-full bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2"
               >
-                <Image size={18} /> Auto Generate
+                <Key size={20} /> Generate
               </button>
+
               <button
-                onClick={() => setManual(true)}
-                className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-                  manual
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-300 text-gray-700"
-                }`}
+                onClick={handleReset}
+                className="px-4 py-2 w-full bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
               >
-                <Upload size={18} /> Manual Upload
+                <RefreshCw size={20} /> Reset
               </button>
             </div>
-            {manual && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
-                  className="hidden"
-                />
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => fileInputRef.current.click()}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
-                  >
-                    <Upload size={18} /> Upload Image
-                  </button>
-                  {selectedFile && (
-                    <p className="text-sm text-gray-700">
-                      Selected: {selectedFile.name}
-                    </p>
-                  )}
-                </div>
-                {validationErrors.file && (
-                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                    <AlertTriangle size={14} /> {validationErrors.file}
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
 
-        {/* Right Section */}
-        <div className="flex flex-col w-1/2 space-y-6 items-center">
-          {imagePreview && (
-            <div className="w-full">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="rounded-lg shadow-md max-h-64 mx-auto"
-              />
-            </div>
-          )}
-          <div className="flex flex-col items-center w-full space-y-4">
-            {/* Primary Action */}
-            <button
-              onClick={handleGenerate}
-              className="px-4 py-2 w-full bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2"
-            >
-              <Key size={20} /> Generate
-            </button>
-
-            {/* Secondary Actions in a Single Group */}
             {generated && (
-              <div className="flex flex-col w-full space-y-2 md:flex-row md:space-y-0 md:space-x-2">
+              <div className="flex flex-row space-x-8 py-2 px-2">
                 <button
                   onClick={handleDownload}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                  className="px-4 py-2 w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                 >
                   <Download size={20} /> Download
                 </button>
                 <button
                   onClick={handleMail}
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                  className="px-4 py-2 w-full bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                 >
                   <Mail size={20} /> Send
                 </button>
               </div>
             )}
+          </div>
+        </div>
 
-            {/* Reset Action */}
+        {/* Right Section */}
+        {/* Right Section */}
+        <div className="flex flex-col w-1/2 space-y-6 items-center">
+          {/* Manual and Automatic Buttons */}
+          <div className="flex space-x-4">
             <button
-              onClick={handleReset}
-              className="px-4 py-2 w-full bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
+              onClick={() => setManual(true)}
+              className={`px-4 py-2 flex gap-2 rounded-lg transition-all ${
+                manual
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+              }`}
             >
-              <RefreshCw size={20} /> Reset
+              <Settings /> Manual
+            </button>
+            <button
+              onClick={() => setManual(false)}
+              className={`px-4 gap-2 py-2 w-auto flex rounded-lg transition-all ${
+                !manual
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+              }`}
+            >
+              <Dices /> Automatic
             </button>
           </div>
+
+          {/* Upload Button */}
+          {manual ? (
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => fileInputRef.current.click()}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
+              >
+                <Upload size={18} /> Upload Image
+              </button>
+              {selectedFile && (
+                <div className="flex flex-col items-center mt-2">
+                  <p className="text-sm text-gray-700">
+                    Selected: {selectedFile.name}
+                  </p>
+
+                  {/* Image Preview */}
+                  {selectedFile instanceof File &&
+                  selectedFile.size > 0 &&
+                  selectedFile.type.startsWith("image/") ? (
+                    <img
+                      src={URL.createObjectURL(selectedFile)}
+                      alt="Selected File Preview"
+                      className="mt-2 rounded-lg shadow-md object-cover h-56 w-64"
+                    />
+                  ) : (
+                    <p className="text-orange-500 text-sm">No image selected</p>
+                  )}
+                </div>
+              )}
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                className="hidden"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              {/* Display the selected file's preview in automatic mode */}
+              {selectedFile ? (
+                <img
+                  src={selectedFile}
+                  alt="Selected File Preview"
+                  className="rounded-lg shadow-md object-cover h-56 w-96"
+                />
+              ) : (
+                <p className="text-gray-500">No image selected.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

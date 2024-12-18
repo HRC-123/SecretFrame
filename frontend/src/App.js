@@ -10,8 +10,8 @@ import Login from "./Components/Login";
 import Encoder from "./Components/Encoder";
 import Decoder from "./Components/Decoder";
 import Secret404Page from "./Components/Secret404Page";
+import HomePage from "./Components/HomePage";
 import { GlobalProvider, useGlobalContext } from "./context/GlobalContext";
-
 
 
 const AppRoutes = () => {
@@ -44,7 +44,7 @@ const profilePicture = localStorage.getItem("profilePicture") || null;
   return (
     <Routes>
       {/* Public Route */}
-      <Route path="/" element={email ? <Navigate to="/encoder" /> : <Login />} />
+      <Route path="/" element={<HomePage />} />
 
       {/* Protected Route */}
       <Route

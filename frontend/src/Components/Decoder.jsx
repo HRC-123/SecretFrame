@@ -12,6 +12,7 @@ import {
   Copy,
   Mail,
   UserCircle2,
+  House,
 } from "lucide-react";
 
 import toast, { Toaster } from "react-hot-toast";
@@ -53,7 +54,6 @@ const Decoder = () => {
   //   }
   // }, []);
 
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -81,7 +81,7 @@ const Decoder = () => {
   const handleDecode = async () => {
     if (validateInputs()) {
       try {
-        const response = await decodeSecret(selectedFile,email);
+        const response = await decodeSecret(selectedFile, email);
 
         if (response) {
           setDecodedSecret(response.secretText);
@@ -118,15 +118,14 @@ const Decoder = () => {
   const handleLogout = () => {
     localStorage.clear();
     setGoogleLoginDetails({
-      email: '',
-      name: '',
-      profilePicture: ''
+      email: "",
+      name: "",
+      profilePicture: "",
     });
 
     toast.success("Logged out successfully!");
-    
-      navigate("/");
-    
+
+    navigate("/");
   };
 
   const handleMail = async () => {
@@ -167,6 +166,12 @@ const Decoder = () => {
           </div>
         </div>
         <div className="flex space-x-4">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all gap-2"
+          >
+            <House size={20} /> Home
+          </button>
           <button
             onClick={() => navigate("/encoder")}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all gap-2"
@@ -219,7 +224,7 @@ const Decoder = () => {
                   />
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center pt-5 pb-6 px-10 w-full">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6 px-10 w-96">
                   <Upload className="w-10 h-10 text-gray-400 mb-2" />
                   <p className="mb-2 text-sm text-gray-500 text-center">
                     Click to upload or drag and drop
@@ -250,6 +255,7 @@ const Decoder = () => {
         <div className="flex flex-col w-1/2 space-y-6 items-center">
           <div className="flex flex-col w-full space-y-4">
             {/* Primary Action - Decode */}
+
             <button
               onClick={handleDecode}
               disabled={!selectedFile}

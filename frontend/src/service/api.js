@@ -3,9 +3,8 @@ import axios from "axios";
 const API_URL = "http://localhost:9000";
 
 
-
 export const encodeSecret = async (
-  imageFile,
+  imageFile, // Expecting a File object
   secretText,
   recieverEmail,
   senderEmail
@@ -13,13 +12,26 @@ export const encodeSecret = async (
   try {
     const formData = new FormData();
 
-    // Append form data only if the values are present
-    if (imageFile) formData.append("image", imageFile); // Image file
-    if (secretText) formData.append("st", secretText); // Secret text
-    if (recieverEmail) formData.append("recieverEmail", recieverEmail); // Receiver's email
-    if (senderEmail) formData.append("senderEmail", senderEmail); // Sender's email
+    // Check if imageFile is a URL or File object
+    if (imageFile instanceof File) {
+      // If it's a File object, append it directly to formData
+      formData.append("image", imageFile);
+    } else if (
+      typeof imageFile === "string" &&
+      imageFile.includes("/static/media/")
+    ) {
+      // If it's a static URL (like your example), fetch it and convert it into a File object
+      const response = await fetch(imageFile);
+      const blob = await response.blob();
+      const file = new File([blob], "image.jpg", { type: blob.type });
+      formData.append("image", file);
+    }
 
-    // Log the FormData to debug its contents before sending it
+    if (secretText) formData.append("st", secretText);
+    if (recieverEmail) formData.append("recieverEmail", recieverEmail);
+    if (senderEmail) formData.append("senderEmail", senderEmail);
+
+    // Log FormData contents for debugging
     for (let pair of formData.entries()) {
       console.log(pair[0] + ": " + pair[1]);
     }
@@ -29,24 +41,15 @@ export const encodeSecret = async (
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      responseType: "arraybuffer", // Set the response type to handle binary data
+      responseType: "arraybuffer", // Handle binary data response
     });
 
-    // Handle the response to download the encoded image
-    // if (response.data) {
-    //   const contentType = response.headers["content-type"];
-    //   const blob = new Blob([response.data], { type: contentType });
-    //   const link = document.createElement("a");
-    //   link.href = URL.createObjectURL(blob);
-    //   link.download = "encoded_image.png"; // Use .png or .jpg depending on the type of image
-    //   link.click(); // Trigger the download
-    // }
-
-    return response.data; // Return the image buffer for further handling
+    return response.data; // Return the encoded image data buffer for further handling
   } catch (error) {
     console.error("Error encoding secret:", error);
   }
 };
+
 
 
 export const decodeSecret = async (image,email) => {

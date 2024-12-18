@@ -41,15 +41,15 @@ const Login = () => {
 
 
   return (
-    <div>
-      <h2>Login</h2>
+   
+      
       
         
           <GoogleLogin onSuccess={onSuccess} onFailure={onFailure} />
         
         
      
-    </div>
+   
   );
 };
 
