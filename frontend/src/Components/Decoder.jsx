@@ -196,6 +196,66 @@ const Decoder = () => {
             Secure Decoder
           </h2>
 
+          <div className="flex flex-col w-full space-y-4">
+            {/* Primary Action - Decode */}
+            <div className="flex flex-row space-x-8 py-2 px-2">
+              <button
+                onClick={handleDecode}
+                disabled={!selectedFile}
+                className={`px-4 py-2 w-full  text-white rounded-lg  transition-all flex items-center justify-center gap-2 ${
+                  selectedFile
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <Key size={20} /> Decode Secret
+              </button>
+
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 w-full bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
+              >
+                <RefreshCw size={20} /> Reset
+              </button>
+            </div>
+
+            {/* Decoded Secret Display */}
+            {decodedSecret && (
+              <div className="w-full bg-gray-100 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <ImageIcon size={18} className="text-indigo-500" />
+                    Decoded Secret
+                  </h3>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleCopySecret}
+                      className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1"
+                    >
+                      <Copy size={14} /> Copy
+                    </button>
+                  </div>
+                </div>
+                <p className="text-gray-800 break-words max-h-32 overflow-y-auto">
+                  {decodedSecret}
+                </p>
+              </div>
+            )}
+
+            {decodedSecret && (
+              <button
+                onClick={handleMail}
+                className={`px-4 py-3 w-full text-white rounded-lg transition-all flex items-center justify-center gap-2 text-base font-semibold bg-blue-600 hover:bg-blue-700"  
+              `}
+              >
+                <Mail size={20} /> Mail
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right Section - Remains the same as previous version */}
+        <div className="flex flex-col w-1/2 space-y-6 items-center">
           {/* Image Upload */}
           <div className="flex flex-col items-center justify-center w-full">
             <h3 className="text-lg font-semibold text-blue-700 mb-3">
@@ -249,69 +309,6 @@ const Decoder = () => {
               <AlertTriangle size={14} /> {validationErrors.decode}
             </p>
           )}
-        </div>
-
-        {/* Right Section - Remains the same as previous version */}
-        <div className="flex flex-col w-1/2 space-y-6 items-center">
-          <div className="flex flex-col w-full space-y-4">
-            {/* Primary Action - Decode */}
-
-            <button
-              onClick={handleDecode}
-              disabled={!selectedFile}
-              className={`px-4 py-3 w-full text-white rounded-lg transition-all flex items-center justify-center gap-2 text-base font-semibold ${
-                selectedFile
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-            >
-              <Key size={20} /> Decode Secret
-            </button>
-
-            {/* Decoded Secret Display */}
-            {decodedSecret && (
-              <div className="w-full bg-gray-100 rounded-lg p-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <ImageIcon size={18} className="text-indigo-500" />
-                    Decoded Secret
-                  </h3>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleCopySecret}
-                      className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1"
-                    >
-                      <Copy size={14} /> Copy
-                    </button>
-                  </div>
-                </div>
-                <p className="text-gray-800 break-words max-h-32 overflow-y-auto">
-                  {decodedSecret}
-                </p>
-              </div>
-            )}
-
-            {decodedSecret && (
-              <button
-                onClick={handleMail}
-                className={`px-4 py-3 w-full text-white rounded-lg transition-all flex items-center justify-center gap-2 text-base font-semibold bg-blue-600 hover:bg-blue-700"  
-              `}
-              >
-                <Mail size={20} /> Mail
-              </button>
-            )}
-
-            {/* Secondary Actions */}
-            <div className="flex flex-col space-y-2">
-              {/* Reset Action */}
-              <button
-                onClick={handleReset}
-                className="px-4 py-2 w-full bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
-              >
-                <RefreshCw size={20} /> Reset
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
