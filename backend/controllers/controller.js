@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
-import Session from "../model/Session.js";
+import {Session,Users} from "../model/Session.js";
 import { randomInt } from "crypto";
 dotenv.config();
 
@@ -57,6 +57,39 @@ export const Encode = async (req, res) => {
 
   const savedSession = await sessionData.save();
   console.log("Session saved successfully:", savedSession);
+
+
+  const userDataSender = new Users({
+    email: senderEmail,
+  });
+
+  const userDataReciever = new Users({
+    email: recieverEmail,
+  });
+
+  // Query both sender and receiver in one API call
+  const usersFound = await Users.find({
+    $or: [{ email: senderEmail }, { email: recieverEmail }],
+  });
+
+  const userFoundSender = usersFound.find((user) => user.email === senderEmail);
+  const userFoundReciever = usersFound.find(
+    (user) => user.email === recieverEmail
+  );
+
+  // Check and create sender if not found
+  if (!userFoundSender) {
+    const userCreation = await userDataSender.save();
+    console.log("Sender user created successfully: ", userCreation);
+  }
+
+  // Check and create receiver if not found
+  if (!userFoundReciever) {
+    const userCreation = await userDataReciever.save();
+    console.log("Receiver user created successfully: ", userCreation);
+  }
+
+ 
 
   // Set headers for downloading the image
   // res.setHeader("Content-Type", req.file.mimetype);
@@ -447,3 +480,10 @@ export const mailRecieverSecret = async (req, res) => {
     res.status(200).json({ msg: "Email sent successfully", info });
   });
 };
+
+export const UsersCount = async (req, res) => {
+  const count = await Users.countDocuments();
+  const encode = await Session.countDocuments();
+
+  return res.status(200).json({ count: count,encode:encode });
+}

@@ -17,6 +17,10 @@ import {
   Trash,
   ScanEye,
   LocateFixed,
+  Plus,
+  UserPlus,
+  UserRoundPlus,
+  FileCode,
 } from "lucide-react";
 
 
@@ -31,12 +35,24 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [userCount, setUserCount] = useState(0);
+  const [encodeCount, setEncodeCount] = useState(0);
 
   // Scroll effect for navbar
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
+
+     const fetchUsersCount = async () => {
+       const response = await fetch("http://localhost:9000/count");
+      const data = await response.json();
+      console.log(data);
+       setUserCount(data?.count || 0);
+       setEncodeCount(data?.encode || 0);
+     };
+     fetchUsersCount();
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -150,6 +166,20 @@ const HomePage = () => {
       icon: <Lock className="w-6 h-6 text-purple-500 mr-3" />,
     },
   ];
+
+  const formatUserCount = (count) => {
+    return count
+      .toString()
+      .split("")
+      .map((digit, index) => (
+        <div
+          key={index}
+          className="bg-orange-50 text-orange-900 font-semibold text-2xl w-12 h-12 flex items-center justify-center rounded-md"
+        >
+          {digit}
+        </div>
+      ));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white relative">
@@ -307,6 +337,42 @@ const HomePage = () => {
               )}
             </div>
           ))}
+        </div>
+
+        <div className="flex justify-evenly items-center">
+          <div className="mt-10 text-center">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">
+              Users who have accessed this website
+            </h3>
+            <div className="flex justify-center items-center space-x-2">
+              {formatUserCount(userCount)}{" "}
+              <UserRoundPlus
+                size={24}
+                className="text-orange-600"
+                aria-label="User Count Icon"
+              />
+            </div>
+            <p className="mt-2 text-sm text-orange-600">
+              ⚡ Updated in real time
+            </p>
+          </div>
+
+          <div className="mt-10 text-center">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">
+              Images encoded using this website
+            </h3>
+            <div className="flex justify-center items-center space-x-2">
+              {formatUserCount(encodeCount)}{" "}
+              <FileCode
+                size={24}
+                className="text-orange-600"
+                aria-label="Encoded Count Icon"
+              />
+            </div>
+            <p className="mt-2 text-sm text-orange-600">
+              ⚡ Updated in real time
+            </p>
+          </div>
         </div>
       </section>
 

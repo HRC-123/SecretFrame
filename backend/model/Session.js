@@ -22,6 +22,16 @@ const sessionSchema = new mongoose.Schema(
   }
 );
 
-const Session = mongoose.model("Session", sessionSchema);
+const UsersCountSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String, // Corrected the type to "String"
+      required: true,
+      match: [/\S+@\S+\.\S+/, "Invalid email format"], // Regex validation for email
+    }
+  },
+);
 
-export default Session;
+
+export const Session = mongoose.model("Session", sessionSchema);
+export const Users = mongoose.model("Users", UsersCountSchema);

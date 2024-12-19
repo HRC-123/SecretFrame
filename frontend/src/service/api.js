@@ -178,3 +178,4 @@ export const mailRecieverSecret = async (secret, email) => {
     console.error("Error encoding secret:", error);
   }
 };
+
