@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Lock, Unlock, ArrowRightCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Secret404Page = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -8,14 +9,35 @@ const Secret404Page = () => {
   const navigate = useNavigate();
 
   const handleUnlock = () => {
+    toast.success("Secret unlocked! 🎉", { position: "top-center" });
     setIsUnlocked(true);
     setTimeout(() => {
       setSecretRevealed(true);
+      toast("Enjoy the hidden treasure!", {
+        icon: "🎉",
+        position: "top-center",
+        style: {
+          background: "#4CAF50",
+          color: "#fff",
+        },
+      });
     }, 1000);
+  };
+
+  const handleNavigate = (path) => {
+    toast.loading("Redirecting...", { position: "top-center" });
+    setTimeout(() => {
+      navigate(path);
+      toast.dismiss();
+      toast.success(`Welcome to ${path === "/" ? "Home" : "Encoder"}!`, {
+        position: "top-center",
+      });
+    }, 500);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-6">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-xl text-center">
         {/* Lock Icon */}
         {!isUnlocked ? (
@@ -67,14 +89,14 @@ const Secret404Page = () => {
             {/* Navigation Buttons */}
             <div className="flex justify-center gap-4">
               <button
-                onClick={() => navigate("/")}
+                onClick={() => handleNavigate("/")}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-all hover:scale-105"
               >
                 <ArrowRightCircle size={18} />
                 Home
               </button>
               <button
-                onClick={() => navigate("/encoder")}
+                onClick={() => handleNavigate("/encoder")}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-all hover:scale-105"
               >
                 <Lock size={18} />

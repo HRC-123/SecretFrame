@@ -71,13 +71,23 @@ export const decodeSecret = async (image,email) => {
   }
 };
 
-export const destroySecret = async (data) => {
+export const destroySecret = async (image, email) => {
   try {
-    const response = await axios.post(`${API_URL}/destroy`, data);
+    const formData = new FormData();
+    formData.append("image", image);
+    formData.append("senderEmail", email);
+
+    const response = await axios.post(`${API_URL}/destroy`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log(response.data);
     return response.data;
   } catch (error) {
-    throw error.response.data || "Error destroying secret";
-    }
+    throw error.response.data || "Error decoding secret";
+  }
 };
 
 

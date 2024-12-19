@@ -8,13 +8,18 @@ import {
   CheckCircle,
   Key,
   FileText,
-   LogOut,
+  LogOut,
   Globe,
   UserCheck,
   AlertTriangle,
   MessageCircle,
   ArrowRight,
+  Trash,
+  ScanEye,
+  LocateFixed,
 } from "lucide-react";
+
+
 import toast, { Toaster } from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -39,36 +44,38 @@ const HomePage = () => {
 
   const onLoginSuccess = (res) => {
     const decoded = jwtDecode(res.credential);
-    console.log("Login Success! Current user: ", decoded);
+    // console.log("Login Success! Current user: ", decoded);
 
-   console.log("Login Success! Current user: ", decoded);
+    // console.log("Login Success! Current user: ", decoded);
 
-   localStorage.setItem("email", decoded?.email);
-   localStorage.setItem("name", decoded?.name);
-   localStorage.setItem("profilePicture", decoded?.picture);
+    localStorage.setItem("email", decoded?.email);
+    localStorage.setItem("name", decoded?.name);
+    localStorage.setItem("profilePicture", decoded?.picture);
 
-   setGoogleLoginDetails({
-     email: decoded?.email,
-     name: decoded?.name,
-     profilePicture: decoded?.profilePicture,
-   });
+    setGoogleLoginDetails({
+      email: decoded?.email,
+      name: decoded?.name,
+      profilePicture: decoded?.profilePicture,
+    });
+
+    toast.success(`Successfully LoggedIn : ${decoded?.name}`)
 
     navigate("/");
   };
 
   const onLoginFailure = (res) => {
     console.error("Login Failed: ", res);
-    alert("Login failed. Please try again.");
+    toast.error("Login failed. Please try again.");
   };
 
   const handleLogout = () => {
     localStorage.clear();
     setGoogleLoginDetails({
-      email: '',
-      name: '',
-      profilePicture:''
+      email: "",
+      name: "",
+      profilePicture: "",
     });
-    alert("You have successfully logged out.");
+    toast.success("You have successfully logged out.");
     navigate("/");
   };
 
@@ -147,7 +154,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white relative">
       {/* Sticky Navbar */}
-       <Toaster position="top-center" />
+      <Toaster position="top-center" />
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
           isScrolled ? "bg-white shadow-md py-3" : "bg-transparent py-6"
@@ -176,13 +183,19 @@ const HomePage = () => {
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center"
                     onClick={() => navigate("/encoder")}
                   >
-                    <FileText className="mr-2 w-4 h-4" /> Encoder
+                    <LocateFixed className="mr-2 w-4 h-4" /> Encoder
                   </button>
                   <button
                     className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center"
                     onClick={() => navigate("/decoder")}
                   >
-                    <MessageCircle className="mr-2 w-4 h-4" /> Decoder
+                    <ScanEye className="mr-2 w-4 h-4" /> Decoder
+                  </button>
+                  <button
+                    onClick={() => navigate("/destroy")}
+                    className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all gap-2"
+                  >
+                    <Trash size={20} /> Destroy
                   </button>
                   <button
                     className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center"
@@ -214,7 +227,11 @@ const HomePage = () => {
           <div className="flex justify-center space-x-4">
             <button
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center"
-              onClick={() => { googleLoginDetails?.email ? navigate("/encoder") : toast.error("Please login first ") }}
+              onClick={() => {
+                googleLoginDetails?.email
+                  ? navigate("/encoder")
+                  : toast.error("Please login first ");
+              }}
             >
               Get Started <ArrowRight className="ml-2 w-5 h-5" />
             </button>

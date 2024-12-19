@@ -13,16 +13,16 @@ import {
   Mail,
   UserCircle2,
   House,
-  Trash
+  Trash,
 } from "lucide-react";
 
 import toast, { Toaster } from "react-hot-toast";
-import { decodeSecret, mailRecieverSecret } from "../service/api";
+import { destroySecret } from "../service/api";
 import { useNavigate } from "react-router-dom";
 
 import { useGlobalContext } from "../context/GlobalContext";
 
-const Decoder = () => {
+const Destroy = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [decodedSecret, setDecodedSecret] = useState(null);
@@ -78,33 +78,33 @@ const Decoder = () => {
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
-const handleDecode = async () => {
-  if (validateInputs()) {
-    try {
-      const response = await toast.promise(
-        decodeSecret(selectedFile, email), // Promise to decode the secret
-        {
-          loading: "Decoding secret...",
-          success: "Secret decoded successfully!",
-          error: (error) =>
-            error?.msg ||
-            "Failed to decode image. Please try again.",
-        }
-      );
 
-      if (response) {
-        setDecodedSecret(response.secretText);
-      }
-    } catch (error) {
-      console.error("Error decoding secret:", error);
-      setValidationErrors({
-        decode: "Failed to decode image. Please check the image and try again.",
-      });
-    }
-  } else {
-    toast.error("There are some errors. Please check!!");
-  }
-};
+ const handleDestroy = async () => {
+   if (validateInputs()) {
+     try {
+       await toast.promise(
+         destroySecret(selectedFile, email), // Promise to destroy the secret
+         {
+           loading: "Destroying secret...",
+           success: "Secret destroyed successfully!",
+           error: (error) =>
+             error?.msg ||
+             "Failed to destroy image. Please check the image and try again.",
+         }
+       );
+     } catch (error) {
+       console.error("Error destroying secret:", error);
+       setValidationErrors({
+         decode:
+           error?.msg ||
+           "Failed to destroy image. Please check the image and try again.",
+       });
+     }
+   } else {
+     toast.error("There are some errors. Please check!!");
+   }
+ };
+
 
   const handleReset = () => {
     setSelectedFile(null);
@@ -118,12 +118,7 @@ const handleDecode = async () => {
     toast.success("Data cleared");
   };
 
-  const handleCopySecret = () => {
-    if (decodedSecret) {
-      navigator.clipboard.writeText(decodedSecret);
-      toast.success("Secret copied to clipboard!");
-    }
-  };
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -138,21 +133,7 @@ const handleDecode = async () => {
     navigate("/");
   };
 
-const handleMail = async () => {
-  try {
-    await toast.promise(
-      mailRecieverSecret(decodedSecret, email), // Promise to send mail
-      {
-        loading: "Sending mail...",
-        success: "Mail sent successfully!",
-        error: "Failed to send mail. Please try again.",
-      }
-    );
-  } catch (error) {
-    console.error("Error sending mail:", error);
-  }
-};
-
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 flex flex-col items-center justify-center px-4 py-8">
@@ -195,10 +176,10 @@ const handleMail = async () => {
             <ArrowRightCircle size={20} /> Encoder
           </button>
           <button
-            onClick={() => navigate("/destroy")}
-            className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all gap-2"
+            onClick={() => navigate("/decoder")}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all gap-2"
           >
-            <Trash size={20} /> Destroy
+            <ArrowRightCircle size={20} /> Decoder
           </button>
           <button
             onClick={handleLogout}
@@ -215,22 +196,22 @@ const handleMail = async () => {
         <div className="flex flex-col w-1/2 space-y-6">
           <h2 className="text-3xl font-bold text-indigo-600 flex items-center gap-3">
             <Lock className="text-indigo-500" strokeWidth={3} />
-            Secure Decoder
+            Secure Destroy
           </h2>
 
           <div className="flex flex-col w-full space-y-4">
             {/* Primary Action - Decode */}
             <div className="flex flex-row space-x-8 py-2 px-2">
               <button
-                onClick={handleDecode}
+                onClick={handleDestroy}
                 disabled={!selectedFile}
                 className={`px-4 py-2 w-full  text-white rounded-lg  transition-all flex items-center justify-center gap-2 ${
                   selectedFile
-                    ? "bg-green-600 hover:bg-green-700"
+                    ? "bg-red-600 hover:bg-red-700"
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
               >
-                <Key size={20} /> Decode Secret
+                <Key size={20} /> Destroy Secret
               </button>
 
               <button
@@ -242,7 +223,7 @@ const handleMail = async () => {
             </div>
 
             {/* Decoded Secret Display */}
-            {decodedSecret && (
+            {/* {decodedSecret && (
               <div className="w-full bg-gray-100 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -262,9 +243,9 @@ const handleMail = async () => {
                   {decodedSecret}
                 </p>
               </div>
-            )}
+            )} */}
 
-            {decodedSecret && (
+            {/* {decodedSecret && (
               <button
                 onClick={handleMail}
                 className={`px-4 py-3 w-full text-white rounded-lg transition-all flex items-center justify-center gap-2 text-base font-semibold bg-blue-600 hover:bg-blue-700"  
@@ -272,7 +253,7 @@ const handleMail = async () => {
               >
                 <Mail size={20} /> Mail
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -337,4 +318,4 @@ const handleMail = async () => {
   );
 };
 
-export default Decoder;
+export default Destroy;

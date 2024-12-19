@@ -12,6 +12,7 @@ import Decoder from "./Components/Decoder";
 import Secret404Page from "./Components/Secret404Page";
 import HomePage from "./Components/HomePage";
 import { GlobalProvider, useGlobalContext } from "./context/GlobalContext";
+import Destroy from "./Components/Destroy";
 
 
 const AppRoutes = () => {
@@ -56,7 +57,13 @@ const profilePicture = localStorage.getItem("profilePicture") || null;
         path="/decoder"
         element={email ? <Decoder /> : <Navigate to="/" />}
       />
-      <Route path='/404notfound' element={<Secret404Page />} />
+
+      <Route
+        path="/destroy"
+        element={email ? <Destroy /> : <Navigate to="/" />}
+      />
+
+      <Route path="/404notfound" element={<Secret404Page />} />
 
       {/* Default Route */}
       <Route path="*" element={<Navigate to="/404notfound" />} />

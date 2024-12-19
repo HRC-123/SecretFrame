@@ -11,7 +11,7 @@ router.post('/encode',upload.single('image'),Encode);
 router.post("/mailReciever",upload.single('image'), mailReciever);
 router.post("/mailRecieverSecret",upload.none(),mailRecieverSecret);
 router.post("/decode", upload.single("image"), Decode);
-router.post('/destroy',Destroy);
+router.post("/destroy", upload.single("image"), Destroy);
 
 
 export default router;

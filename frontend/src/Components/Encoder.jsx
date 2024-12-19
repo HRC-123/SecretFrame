@@ -15,7 +15,9 @@ import {
   UserCircle2,
   House,
   Dices,
-  Settings
+  Settings,
+  Trash,
+  ListRestart
 } from "lucide-react";
 import { encodeSecret, mailReciever } from "../service/api";
 import toast, { Toaster } from "react-hot-toast";
@@ -37,6 +39,7 @@ const Encoder = () => {
   const profilePictureRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [refresh, setRefresh] = useState(false);
 
 
   useEffect(() => {
@@ -58,7 +61,7 @@ const Encoder = () => {
     setSelectedFile(selectedImage);
 
     // console.log(selectedImage);
-  }, [manual]);
+  }, [manual,refresh]);
 
 
 
@@ -113,33 +116,38 @@ const Encoder = () => {
     }
 
     setValidationErrors(errors);
+    
     return Object.keys(errors).length === 0;
   };
+
+
 
   const handleGenerate = async () => {
     if (validateInputs()) {
       setGenerated(false);
 
       try {
-        const encodedImageBuffer = await encodeSecret(
-          selectedFile,
-          st,
-          recieverEmail,
-          senderEmail
+        const encodedImageBuffer = await toast.promise(
+          encodeSecret(selectedFile, st, recieverEmail, senderEmail), // Promise to encode the secret
+          {
+            loading: "Encoding secret...",
+            success: "Secret encoded successfully!",
+            error: "Error encoding secret. Please try again.",
+          }
         );
 
         if (encodedImageBuffer) {
           setGenerated(true);
           setEncodedImage(encodedImageBuffer);
-          toast.success("Image encoded successfully!");
         }
       } catch (error) {
-        toast.error("Error encoding secret. Please try again.");
+        console.error("Error encoding secret:", error);
       }
     } else {
-      toast.error("Please fix validation errors.");
+      toast.error("There are some errors. Please check!!");
     }
   };
+
 
   const handleDownload = () => {
     if (encodedImage) {
@@ -148,17 +156,28 @@ const Encoder = () => {
       link.href = URL.createObjectURL(blob);
       link.download = "encoded_image.jpg";
       link.click();
+
+      toast.success("Image downloaded successfully")
     }
   };
 
-  const handleMail = async () => {
-    try {
-      const response = await mailReciever(encodedImage, recieverEmail);
-      toast.success("Mail sent successfully!");
-    } catch (error) {
-      toast.error("Failed to send mail.");
-    }
-  };
+ const handleMail = async () => {
+   try {
+     await toast.promise(
+       mailReciever(encodedImage, recieverEmail), // Promise to send mail
+       {
+         loading: "Sending mail...",
+         success: "Mail sent successfully!",
+         error: (error) =>
+           error?.response?.data?.msg ||
+           "Failed to send mail. Please try again.",
+       }
+     );
+   } catch (error) {
+     console.error("Error sending mail:", error);
+   }
+ };
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -182,6 +201,7 @@ const Encoder = () => {
     setValidationErrors({});
     setEncodedImage(null);
     fileInputRef.current = null;
+    toast.success("Data cleared ");
   };
 
   return (
@@ -221,7 +241,13 @@ const Encoder = () => {
             onClick={() => navigate("/decoder")}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all gap-2"
           >
-            <ArrowRightCircle size={20} /> Decoder Page
+            <ArrowRightCircle size={20} /> Decoder
+          </button>
+          <button
+            onClick={() => navigate("/destroy")}
+            className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all gap-2"
+          >
+            <Trash size={20} /> Destroy
           </button>
           <button
             onClick={handleLogout}
@@ -339,16 +365,6 @@ const Encoder = () => {
           {/* Manual and Automatic Buttons */}
           <div className="flex space-x-4">
             <button
-              onClick={() => setManual(true)}
-              className={`px-4 py-2 flex gap-2 rounded-lg transition-all ${
-                manual
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-              }`}
-            >
-              <Settings /> Manual
-            </button>
-            <button
               onClick={() => setManual(false)}
               className={`px-4 gap-2 py-2 w-auto flex rounded-lg transition-all ${
                 !manual
@@ -357,6 +373,17 @@ const Encoder = () => {
               }`}
             >
               <Dices /> Automatic
+            </button>
+
+            <button
+              onClick={() => setManual(true)}
+              className={`px-4 py-2 flex gap-2 rounded-lg transition-all ${
+                manual
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+              }`}
+            >
+              <Settings /> Manual
             </button>
           </div>
 
@@ -401,11 +428,18 @@ const Encoder = () => {
           ) : (
             <div className="flex flex-col items-center">
               {/* Display the selected file's preview in automatic mode */}
+              <button
+                onClick={() => setRefresh(!refresh)}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2"
+              >
+                <ListRestart size={18} /> Refresh Image
+              </button>
+
               {selectedFile ? (
                 <img
                   src={selectedFile}
                   alt="Selected File Preview"
-                  className="rounded-lg shadow-md object-cover h-56 w-96"
+                  className="rounded-lg shadow-md object-cover h-56 w-96 pt-4"
                 />
               ) : (
                 <p className="text-gray-500">No image selected.</p>

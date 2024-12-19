@@ -134,7 +134,7 @@ export const Decode = async (req, res) => {
     console.log(sessions);
 
     if (!sessions || sessions.length === 0) {
-      return res.status(404).json({ msg: "No sessions found for this email" });
+      return res.status(404).json({ msg: "No secrets found for this image" });
     }
 
     let validSession = null;
@@ -175,9 +175,7 @@ export const Decode = async (req, res) => {
     console.log("valid session : ", validSession);
 
     if (!validSession) {
-      return res
-        .status(400)
-        .json({ msg: "No valid session found for the provided email" });
+      return res.status(400).json({ msg: "No secrets found for this image" });
     }
 
     // Decrypt the secret UUID using the master key
@@ -201,12 +199,12 @@ export const Decode = async (req, res) => {
     if (!decryptedText) {
       return res
         .status(400)
-        .json({ msg: "Failed to decrypt the secret message from the image" });
+        .json({ msg: "Failed to decode the secret message from the image" });
     }
 
     // Respond with the decrypted secret text
     return res.status(200).json({
-      msg: "Decoding successful",
+      msg: "Secret Decoded Successfully",
       secretText: decryptedText,
     });
   } catch (error) {
@@ -215,7 +213,150 @@ export const Decode = async (req, res) => {
   }
 };
 
-export const Destroy = async (request, response) => {};
+export const Destroy = async (req, res) => {
+  console.log("Destroying process initiated...");
+
+  const { senderEmail } = req.body;
+
+  if (!req.file) {
+    return res.status(400).json({ msg: "No image uploaded" });
+  }
+
+  try {
+    // Extract the custom encoded data from the image
+    const imageBuffer = req.file.buffer.toString("utf-8");
+
+    // Look for the embedded data (e.g., JSON string after the comment tag `<!--`)
+    const encodedDataMatch = imageBuffer.match(/<!--\s*({.*})\s*-->/);
+    // console.log("encodeed data", encodedDataMatch);
+    if (!encodedDataMatch) {
+      return res
+        .status(400)
+        .json({ msg: "No encoded data found in the image" });
+    }
+
+    const encodedData = JSON.parse(encodedDataMatch[1]);
+    const { hash, encryptedText } = encodedData;
+    let encryptedSecret = "";
+    console.log(hash);
+    console.log(encryptedText);
+    // console.log(encryptedSecret);
+    // Fetch all sessions for the receiver email from the database
+    const sessions = await Session.find({ senderMail: senderEmail });
+    console.log(sessions);
+
+    if (!sessions || sessions.length === 0) {
+      return res.status(404).json({ msg: "Secret already destroyed" });
+    }
+
+    let validSession = null;
+
+    // Decrypt the secret UUID using the master key
+    let secretUUID;
+    let destroySecretNumber;
+    let sender;
+    let reciever;
+
+    //  if (!secretUUID) {
+    //    return res.status(400).json({ msg: "Failed to decrypt secret key" });
+    //  }
+
+    // Loop through all sessions and validate hash
+    for (const session of sessions) {
+      encryptedSecret = session.randomNumber;
+
+      const randomNumberDecrypt = CryptoJS.AES.decrypt(
+        encryptedSecret,
+        process.env.MASTER_KEY
+      ).toString(CryptoJS.enc.Utf8);
+
+      console.log(randomNumberDecrypt);
+      secretUUID = randomNumberDecrypt;
+
+      const combinedString = `${session.senderMail}:${session.recieverMail}:${secretUUID}`;
+
+      // const combinedStringHash = bcrypt.hashSync(combinedString, 12);
+      // Compare the plain combined string against the saved hash
+
+      console.log(combinedString);
+      if (bcrypt.compareSync(combinedString, hash)) {
+        console.log(true);
+        validSession = session;
+        destroySecretNumber = session.randomNumber;
+        sender = session.senderMail;
+        reciever = session.recieverMail;
+        break;
+      }
+    }
+
+    console.log("valid session : ", validSession);
+
+    if (!validSession) {
+      return res.status(400).json({ msg: "Secret already destroyed" });
+    }
+
+    // Decrypt the secret UUID using the master key
+    // const secretUUID = CryptoJS.AES.decrypt(
+    //   encryptedSecret,
+    //   process.env.MASTER_KEY
+    // ).toString(CryptoJS.enc.Utf8);
+
+    // if (!secretUUID) {
+    //   return res.status(400).json({ msg: "Failed to decrypt secret key" });
+    // }
+
+    // Decrypt the text using the decrypted secretUUID
+    const destroySessions = await Session.deleteMany({
+      randomNumber: destroySecretNumber,
+    });
+
+    //Mail reciever and sender that secret is destroyed
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER,
+        pass: process.env.PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.USER,
+      to: [sender, reciever],
+      subject: " Secret Destroyed",
+      html: `
+  <p>Dear,</p>
+  <p>I hope this message finds you well.</p>
+  <p>We would like to inform you that the secret embedded in the attached image has been securely destroyed. This action ensures that the encoded information is no longer accessible or retrievable.</p>
+  <p>Thank you for your understanding and trust in Secret Frame for your secure communication needs.</p>
+  <p>Best regards,<br/>Secret Frame</p>
+`,
+
+      attachments: [
+        {
+          filename: "destroyed_secret.jpg", // The name of the file that will appear in the email
+          content: req.file.buffer, // Raw image buffer from multer
+          contentType: req.file.mimetype, // Dynamically setting MIME type (e.g., image/jpeg or image/png)
+        },
+      ],
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({ msg: "Failed to send email" });
+      }
+    });
+
+    // Respond with the decrypted secret text
+    return res.status(200).json({
+      msg: "Destroy successful",
+    });
+  } catch (error) {
+    console.error("Error destroying the image:", error);
+    return res.status(500).json({ msg: "Error destroying the image" });
+  }
+};
 
 export const mailReciever = async (req, res) => {
   const { email } = req.body;
@@ -268,15 +409,13 @@ export const mailRecieverSecret = async (req, res) => {
   console.log(req.body);
   const { secret, email } = req?.body;
 
-   console.log("Mail Reciever Secret");
-   console.log(secret);
-   console.log(email);
+  console.log("Mail Reciever Secret");
+  console.log(secret);
+  console.log(email);
 
   if (!email || !secret) {
     return res.status(400).json({ msg: "Email is required" });
   }
-
- 
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
