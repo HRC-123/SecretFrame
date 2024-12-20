@@ -2,7 +2,6 @@ import express from 'express';
 import { Encode ,Decode,Destroy,mailReciever,mailRecieverSecret,UsersCount} from '../controllers/controller.js';
 import multer from "multer";
 
-// Set up storage engine (you can customize this)
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();

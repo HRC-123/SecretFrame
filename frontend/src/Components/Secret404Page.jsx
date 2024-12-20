@@ -37,9 +37,9 @@ const Secret404Page = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-6">
-      <Toaster position="top-center" reverseOrder={false} />
+      <Toaster position="top-center" reverseOrder={true} />
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-xl text-center">
-        {/* Lock Icon */}
+        
         {!isUnlocked ? (
           <Lock
             className="mx-auto mb-6 text-indigo-500 animate-pulse"
@@ -49,19 +49,19 @@ const Secret404Page = () => {
           <Unlock className="mx-auto mb-6 text-green-500" size={80} />
         )}
 
-        {/* Title */}
+       
         <h1 className="text-3xl font-bold text-indigo-700 mb-4">
           {isUnlocked ? "Secret Unlocked!" : "404: Page Not Found"}
         </h1>
 
-        {/* Subtitle */}
+      
         <p className="text-gray-600 mb-8">
           {isUnlocked
             ? "You've uncovered a hidden message. What will you do next?"
             : "This page might be hiding something... are you curious enough to find out?"}
         </p>
 
-        {/* Button Section */}
+      
         {!isUnlocked ? (
           <button
             onClick={handleUnlock}
@@ -76,7 +76,7 @@ const Secret404Page = () => {
               secretRevealed ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* Secret Message */}
+           
             <div className="bg-indigo-100 border border-indigo-200 p-4 rounded-lg mb-6">
               <h2 className="text-lg font-semibold text-indigo-700">
                 🎉 Hidden Message
@@ -86,7 +86,6 @@ const Secret404Page = () => {
               </p>
             </div>
 
-            {/* Navigation Buttons */}
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => handleNavigate("/")}

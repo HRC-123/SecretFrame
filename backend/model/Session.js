@@ -3,31 +3,31 @@ import mongoose from "mongoose";
 const sessionSchema = new mongoose.Schema(
   {
     senderMail: {
-      type: String, // Corrected the type to "String"
+      type: String,
       required: true,
-      match: [/\S+@\S+\.\S+/, "Invalid email format"], // Regex validation for email
+      match: [/\S+@\S+\.\S+/, "Invalid email format"], 
     },
     randomNumber: {
       type: String,
       required: true,
     },
     recieverMail: {
-      type: String, // Corrected the type to "String"
+      type: String,
       required: true,
-      match: [/\S+@\S+\.\S+/, "Invalid email format"], // Regex validation for email
+      match: [/\S+@\S+\.\S+/, "Invalid email format"], 
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true, 
   }
 );
 
 const UsersCountSchema = new mongoose.Schema(
   {
     email: {
-      type: String, // Corrected the type to "String"
+      type: String, 
       required: true,
-      match: [/\S+@\S+\.\S+/, "Invalid email format"], // Regex validation for email
+      match: [/\S+@\S+\.\S+/, "Invalid email format"], 
     }
   },
 );

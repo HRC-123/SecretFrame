@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Upload,
-  Image,
   Lock,
   Key,
   Send,
   Download,
   RefreshCw,
-  Check,
   AlertTriangle,
   Mail,
   LogOut,
@@ -27,9 +25,7 @@ import { useGlobalContext } from "../context/GlobalContext";
 const Encoder = () => {
   const [st, setSt] = useState("");
   const [recieverEmail, setRecieverEmail] = useState("");
-  // const [senderEmail, setSenderEmail] = useState("");
-  // const [name, setName] = useState('');
-  // const [profilePicture, setProfilePicture] = useState('');
+ 
   const [manual, setManual] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -68,23 +64,7 @@ const Encoder = () => {
   const { googleLoginDetails, setGoogleLoginDetails } = useGlobalContext();
   const { email: senderEmail, name, profilePicture } = googleLoginDetails;
 
-  // useEffect(() => {
-  //   const emailSender = localStorage.getItem("email");
-  //   if (emailSender) {
-  //     setSenderEmail(emailSender);
-  //   }
-
-  //     const name = localStorage.getItem("name");
-  //     if (name) {
-  //       setName(name);
-  //   }
-
-  //     const profile = localStorage.getItem("profilePicture");
-  //     if (profile) {
-  //       setProfilePicture(profile);
-  //     }
-  // }, []);
-
+  
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -128,7 +108,7 @@ const Encoder = () => {
 
       try {
         const encodedImageBuffer = await toast.promise(
-          encodeSecret(selectedFile, st, recieverEmail, senderEmail), // Promise to encode the secret
+          encodeSecret(selectedFile, st, recieverEmail, senderEmail), 
           {
             loading: "Encoding secret...",
             success: "Secret encoded successfully!",
@@ -164,7 +144,7 @@ const Encoder = () => {
  const handleMail = async () => {
    try {
      await toast.promise(
-       mailReciever(encodedImage, recieverEmail), // Promise to send mail
+       mailReciever(encodedImage, recieverEmail), 
        {
          loading: "Sending mail...",
          success: "Mail sent successfully!",
@@ -208,7 +188,7 @@ const Encoder = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 flex flex-col items-center justify-center px-4 py-8">
       <Toaster position="top-center" />
 
-      {/* Header */}
+     
       <div className="flex justify-between items-center w-full max-w-5xl mb-6">
         <div className="flex items-center space-x-4">
           <label className="cursor-pointer">
@@ -259,14 +239,14 @@ const Encoder = () => {
       </div>
 
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-5xl flex space-x-6 items-start border border-gray-200">
-        {/* Left Section */}
+       
         <div className="flex flex-col w-1/2 space-y-6">
           <h2 className="text-3xl font-bold text-indigo-600 flex items-center gap-3">
             <Lock className="text-indigo-500" strokeWidth={3} />
             Secure Encoder
           </h2>
 
-          {/* Secret Text Input */}
+        
           <div>
             <label
               htmlFor="secrettext"
@@ -294,7 +274,7 @@ const Encoder = () => {
             )}
           </div>
 
-          {/* Email Input */}
+         
           <div>
             <label
               htmlFor="email"
@@ -322,8 +302,7 @@ const Encoder = () => {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col">
+         <div className="flex flex-col">
             <div className="flex flex-row space-x-8 py-2 px-2">
               <button
                 onClick={handleGenerate}
@@ -359,10 +338,9 @@ const Encoder = () => {
           </div>
         </div>
 
-        {/* Right Section */}
-        {/* Right Section */}
+      
         <div className="flex flex-col w-1/2 space-y-6 items-center">
-          {/* Manual and Automatic Buttons */}
+          
           <div className="flex space-x-4">
             <button
               onClick={() => setManual(false)}
@@ -387,7 +365,7 @@ const Encoder = () => {
             </button>
           </div>
 
-          {/* Upload Button */}
+       
           {manual ? (
             <div className="flex flex-col items-center">
               <button
@@ -402,7 +380,7 @@ const Encoder = () => {
                     Selected: {selectedFile.name}
                   </p>
 
-                  {/* Image Preview */}
+                 
                   {selectedFile instanceof File &&
                   selectedFile.size > 0 &&
                   selectedFile.type.startsWith("image/") ? (
@@ -427,7 +405,7 @@ const Encoder = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              {/* Display the selected file's preview in automatic mode */}
+              
               <button
                 onClick={() => setRefresh(!refresh)}
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2"

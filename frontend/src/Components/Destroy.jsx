@@ -1,19 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   Upload,
   Lock,
   Key,
-  Download,
   RefreshCw,
   AlertTriangle,
-  ImageIcon,
   ArrowRightCircle,
   LogOut,
-  Copy,
-  Mail,
   UserCircle2,
   House,
-  Trash,
 } from "lucide-react";
 
 import toast, { Toaster } from "react-hot-toast";
@@ -25,35 +20,13 @@ import { useGlobalContext } from "../context/GlobalContext";
 const Destroy = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [decodedSecret, setDecodedSecret] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
-  // const [userEmail, setUserEmail] = useState("");
-  // const [profilePicture, setProfilePicture] = useState("");
-  // const [name, setName] = useState("");
   const fileInputRef = useRef(null);
   const profilePictureRef = useRef(null);
   const navigate = useNavigate();
 
   const { googleLoginDetails, setGoogleLoginDetails } = useGlobalContext();
   const { email, name, profilePicture } = googleLoginDetails;
-
-  // useEffect(() => {
-  //   const emailFromStorage = localStorage.getItem("email");
-  //   const nameFromStorage = localStorage.getItem("name");
-  //   const profilePicFromStorage = localStorage.getItem("profilePicture");
-
-  //   if (emailFromStorage) {
-  //     setUserEmail(emailFromStorage);
-  //   }
-
-  //   if (nameFromStorage) {
-  //     setName(nameFromStorage);
-  //   }
-
-  //   if (profilePicFromStorage) {
-  //     setProfilePicture(profilePicFromStorage);
-  //   }
-  // }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -83,7 +56,7 @@ const Destroy = () => {
    if (validateInputs()) {
      try {
        await toast.promise(
-         destroySecret(selectedFile, email), // Promise to destroy the secret
+         destroySecret(selectedFile, email), 
          {
            loading: "Destroying secret...",
            success: "Secret destroyed successfully!",
@@ -109,7 +82,6 @@ const Destroy = () => {
   const handleReset = () => {
     setSelectedFile(null);
     setImagePreview(null);
-    setDecodedSecret(null);
     setValidationErrors({});
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -139,10 +111,10 @@ const Destroy = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 flex flex-col items-center justify-center px-4 py-8">
       <Toaster position="top-center" />
 
-      {/* Header */}
+   
       <div className="flex justify-between items-center w-full max-w-5xl mb-6">
         <div className="flex items-center space-x-4">
-          {/* Profile Picture Upload */}
+         
           <label className="cursor-pointer">
             {profilePicture ? (
               <img
@@ -190,9 +162,9 @@ const Destroy = () => {
         </div>
       </div>
 
-      {/* Rest of the component remains the same as in the previous version */}
+      
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-5xl flex space-x-6 items-start border border-gray-200">
-        {/* Left Section */}
+       
         <div className="flex flex-col w-1/2 space-y-6">
           <h2 className="text-3xl font-bold text-indigo-600 flex items-center gap-3">
             <Lock className="text-indigo-500" strokeWidth={3} />
@@ -200,7 +172,7 @@ const Destroy = () => {
           </h2>
 
           <div className="flex flex-col w-full space-y-4">
-            {/* Primary Action - Decode */}
+           
             <div className="flex flex-row space-x-8 py-2 px-2">
               <button
                 onClick={handleDestroy}
@@ -222,44 +194,13 @@ const Destroy = () => {
               </button>
             </div>
 
-            {/* Decoded Secret Display */}
-            {/* {decodedSecret && (
-              <div className="w-full bg-gray-100 rounded-lg p-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <ImageIcon size={18} className="text-indigo-500" />
-                    Decoded Secret
-                  </h3>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleCopySecret}
-                      className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1"
-                    >
-                      <Copy size={14} /> Copy
-                    </button>
-                  </div>
-                </div>
-                <p className="text-gray-800 break-words max-h-32 overflow-y-auto">
-                  {decodedSecret}
-                </p>
-              </div>
-            )} */}
-
-            {/* {decodedSecret && (
-              <button
-                onClick={handleMail}
-                className={`px-4 py-3 w-full text-white rounded-lg transition-all flex items-center justify-center gap-2 text-base font-semibold bg-blue-600 hover:bg-blue-700"  
-              `}
-              >
-                <Mail size={20} /> Mail
-              </button>
-            )} */}
+          
           </div>
         </div>
 
-        {/* Right Section - Remains the same as previous version */}
+       
         <div className="flex flex-col w-1/2 space-y-6 items-center">
-          {/* Image Upload */}
+          
           <div className="flex flex-col items-center justify-center w-full">
             <h3 className="text-lg font-semibold text-blue-700 mb-3">
               Upload Encoded Image

@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   Upload,
   Lock,
   Key,
-  Download,
   RefreshCw,
   AlertTriangle,
   ImageIcon,
@@ -27,33 +26,11 @@ const Decoder = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [decodedSecret, setDecodedSecret] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
-  // const [userEmail, setUserEmail] = useState("");
-  // const [profilePicture, setProfilePicture] = useState("");
-  // const [name, setName] = useState("");
   const fileInputRef = useRef(null);
-  const profilePictureRef = useRef(null);
   const navigate = useNavigate();
 
   const { googleLoginDetails, setGoogleLoginDetails } = useGlobalContext();
   const { email, name, profilePicture } = googleLoginDetails;
-
-  // useEffect(() => {
-  //   const emailFromStorage = localStorage.getItem("email");
-  //   const nameFromStorage = localStorage.getItem("name");
-  //   const profilePicFromStorage = localStorage.getItem("profilePicture");
-
-  //   if (emailFromStorage) {
-  //     setUserEmail(emailFromStorage);
-  //   }
-
-  //   if (nameFromStorage) {
-  //     setName(nameFromStorage);
-  //   }
-
-  //   if (profilePicFromStorage) {
-  //     setProfilePicture(profilePicFromStorage);
-  //   }
-  // }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -82,7 +59,7 @@ const handleDecode = async () => {
   if (validateInputs()) {
     try {
       const response = await toast.promise(
-        decodeSecret(selectedFile, email), // Promise to decode the secret
+        decodeSecret(selectedFile, email), 
         {
           loading: "Decoding secret...",
           success: "Secret decoded successfully!",
@@ -141,7 +118,7 @@ const handleDecode = async () => {
 const handleMail = async () => {
   try {
     await toast.promise(
-      mailRecieverSecret(decodedSecret, email), // Promise to send mail
+      mailRecieverSecret(decodedSecret, email),
       {
         loading: "Sending mail...",
         success: "Mail sent successfully!",
@@ -158,10 +135,10 @@ const handleMail = async () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 flex flex-col items-center justify-center px-4 py-8">
       <Toaster position="top-center" />
 
-      {/* Header */}
+    
       <div className="flex justify-between items-center w-full max-w-5xl mb-6">
         <div className="flex items-center space-x-4">
-          {/* Profile Picture Upload */}
+        
           <label className="cursor-pointer">
             {profilePicture ? (
               <img
@@ -171,8 +148,7 @@ const handleMail = async () => {
               />
             ) : (
               <UserCircle2
-                className="w-12 h-12 text-gray-400 hover:text-indigo-600"
-                onClick={() => profilePictureRef.current.click()}
+                className="w-12 h-12 text-indigo-600 hover:text-indigo-700"
               />
             )}
           </label>
@@ -209,7 +185,7 @@ const handleMail = async () => {
         </div>
       </div>
 
-      {/* Rest of the component remains the same as in the previous version */}
+     
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-5xl flex space-x-6 items-start border border-gray-200">
         {/* Left Section */}
         <div className="flex flex-col w-1/2 space-y-6">
@@ -219,7 +195,7 @@ const handleMail = async () => {
           </h2>
 
           <div className="flex flex-col w-full space-y-4">
-            {/* Primary Action - Decode */}
+           
             <div className="flex flex-row space-x-8 py-2 px-2">
               <button
                 onClick={handleDecode}
@@ -241,7 +217,7 @@ const handleMail = async () => {
               </button>
             </div>
 
-            {/* Decoded Secret Display */}
+          
             {decodedSecret && (
               <div className="w-full bg-gray-100 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-center">
@@ -276,9 +252,9 @@ const handleMail = async () => {
           </div>
         </div>
 
-        {/* Right Section - Remains the same as previous version */}
+   
         <div className="flex flex-col w-1/2 space-y-6 items-center">
-          {/* Image Upload */}
+       
           <div className="flex flex-col items-center justify-center w-full">
             <h3 className="text-lg font-semibold text-blue-700 mb-3">
               Upload Encoded Image

@@ -7,18 +7,14 @@ import {
   ChevronUp,
   CheckCircle,
   Key,
-  FileText,
   LogOut,
   Globe,
   UserCheck,
   AlertTriangle,
-  MessageCircle,
   ArrowRight,
   Trash,
   ScanEye,
   LocateFixed,
-  Plus,
-  UserPlus,
   UserRoundPlus,
   FileCode,
 } from "lucide-react";
@@ -38,7 +34,7 @@ const HomePage = () => {
   const [userCount, setUserCount] = useState(0);
   const [encodeCount, setEncodeCount] = useState(0);
 
-  // Scroll effect for navbar
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -46,9 +42,9 @@ const HomePage = () => {
 
 
      const fetchUsersCount = async () => {
-       const response = await fetch("http://localhost:9000/count");
+       const response = await fetch(`${process.env.REACT_APP_API_URL}/count`);
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
        setUserCount(data?.count || 0);
        setEncodeCount(data?.encode || 0);
      };
@@ -183,7 +179,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white relative">
-      {/* Sticky Navbar */}
+     
       <Toaster position="top-center" />
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
@@ -240,7 +236,7 @@ const HomePage = () => {
         </div>
       </nav>
 
-      {/* Hero Section (Adjusted for Navbar) */}
+      
       <header className="container mx-auto px-6 pt-32 pb-16 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
@@ -269,7 +265,7 @@ const HomePage = () => {
         </div>
       </header>
 
-      {/* Features Section (Expanded) */}
+      
       <section className="container mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -297,7 +293,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* FAQ Section with Icons */}
+    
       <section className="container mx-auto px-6 py-16 bg-gray-50">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -376,10 +372,10 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Footer */}
+      
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-6">
-          {/* Footer Top Section */}
+          
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold mb-2">Secret Frame</h2>
             <p className="text-gray-400 text-lg">
@@ -387,18 +383,18 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Divider Line */}
+         
           <div className="border-t border-gray-700 my-6"></div>
 
-          {/* Footer Bottom Section */}
+        
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            {/* Copyright Section */}
+           
             <p className="text-gray-400 text-sm">
               © 2024 <span className="font-semibold">Secret Frame</span>. All
               Rights Reserved.
             </p>
 
-            {/* Created By Section */}
+           
             <p className="text-gray-400 text-sm">
               Created by{" "}
               <span className="font-semibold text-white">

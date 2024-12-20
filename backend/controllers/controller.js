@@ -10,7 +10,7 @@ dotenv.config();
 
 export const Encode = async (req, res) => {
   console.log("We got the encode sir");
-  console.log(req.body.st, req.body.recieverEmail, req.body.senderEmail);
+  // console.log(req.body.st, req.body.recieverEmail, req.body.senderEmail);
   const { st, recieverEmail, senderEmail } = req.body;
   //   return res.status(200).json({ msg: "Encode API worked! Bingo!!" });
 
@@ -18,24 +18,21 @@ export const Encode = async (req, res) => {
     return res.status(400).json({ msg: "No image uploaded" });
   }
 
-  //The game starts here
-  //Encode
-  //we will create hash using sender mail + reciever mail and store in image with the secret store in db
-  //encrypt the text with the secret and store in image and send backto user
+  // The game starts here
+  // Encode
+  // encrypt the text with the secret and store in image and send backto user
 
-  //Decode
-  //We will check the hash using the reciever and sender mail if there are more documents then we will have secret of all of them and check with the hash if the hash is matched
-  //Then we will take that secret and decrypt the text and mailto urself and display.
+  // Decode
+  // Then we will take that secret and decrypt the text and mailto urself and display.
 
-  //Aditinally we will prompt sender to destroy this if he destries the will destroy from db
+  // Aditinally we will prompt sender to destroy this if he destries the will destroy from db
 
   const secretUUID = uuidv4();
-  console.log(secretUUID);
+  // console.log(secretUUID);
 
-  // Combine the emails with the UUID to create a unique string
+ 
   const combinedString = `${senderEmail}:${recieverEmail}:${secretUUID}`;
 
-  // Generate a hash of the combined string (hashing the email + UUID secret)
   const hash = bcrypt.hashSync(combinedString, 12);
 
   const encryptedSecret = CryptoJS.AES.encrypt(
@@ -45,9 +42,9 @@ export const Encode = async (req, res) => {
 
   const encrypted = CryptoJS.AES.encrypt(st, secretUUID).toString();
 
-  console.log(hash);
-  console.log(encrypted);
-  console.log(encryptedSecret);
+  // console.log(hash);
+  // console.log(encrypted);
+  // console.log(encryptedSecret);
 
   const sessionData = new Session({
     senderMail: senderEmail,
@@ -56,7 +53,7 @@ export const Encode = async (req, res) => {
   });
 
   const savedSession = await sessionData.save();
-  console.log("Session saved successfully:", savedSession);
+  // console.log("Session saved successfully:", savedSession);
 
 
   const userDataSender = new Users({
@@ -67,7 +64,7 @@ export const Encode = async (req, res) => {
     email: recieverEmail,
   });
 
-  // Query both sender and receiver in one API call
+  
   const usersFound = await Users.find({
     $or: [{ email: senderEmail }, { email: recieverEmail }],
   });
@@ -77,55 +74,42 @@ export const Encode = async (req, res) => {
     (user) => user.email === recieverEmail
   );
 
-  // Check and create sender if not found
+  
   if (!userFoundSender) {
     const userCreation = await userDataSender.save();
-    console.log("Sender user created successfully: ", userCreation);
-  }
-
-  // Check and create receiver if not found
-  if (!userFoundReciever) {
-    const userCreation = await userDataReciever.save();
-    console.log("Receiver user created successfully: ", userCreation);
+    // console.log("Sender user created successfully: ", userCreation);
   }
 
  
+  if (!userFoundReciever) {
+    const userCreation = await userDataReciever.save();
+    // console.log("Receiver user created successfully: ", userCreation);
+  }
 
-  // Set headers for downloading the image
-  // res.setHeader("Content-Type", req.file.mimetype);
-  // res.setHeader(
-  //   "Content-Disposition",
-  //   'attachment; filename="encoded_image.jpg"'
-  // );
-
-  // // Send the image back to the frontend
-  // return res.status(200).send(req.file.buffer);
-
-  // Prepare the data to be added to the image (can be base64 encoded, or as a string)
   const encodedData = JSON.stringify({
     hash: hash,
 
     encryptedText: encrypted,
   });
 
-  // Use sharp to embed the data into the image
+
   sharp(req.file.buffer)
     .toBuffer()
     .then((imageBuffer) => {
-      // Embed the encoded data by appending it to the end of the image as a comment
+      
       const combinedBuffer = Buffer.concat([
         imageBuffer,
-        Buffer.from(`\n<!-- ${encodedData} -->`), // Embed your custom data
+        Buffer.from(`\n<!-- ${encodedData} -->`), 
       ]);
 
-      // Set headers for downloading the image
+     
       res.setHeader("Content-Type", req.file.mimetype);
       res.setHeader(
         "Content-Disposition",
         'attachment; filename="encoded_image.jpg"'
       );
 
-      // Send the combined buffer (image + data) back to the frontend
+      
       return res.status(200).send(combinedBuffer);
     })
     .catch((err) => {
@@ -144,12 +128,12 @@ export const Decode = async (req, res) => {
   }
 
   try {
-    // Extract the custom encoded data from the image
+    
     const imageBuffer = req.file.buffer.toString("utf-8");
 
-    // Look for the embedded data (e.g., JSON string after the comment tag `<!--`)
+  
     const encodedDataMatch = imageBuffer.match(/<!--\s*({.*})\s*-->/);
-    // console.log("encodeed data", encodedDataMatch);
+  
     if (!encodedDataMatch) {
       return res
         .status(400)
@@ -159,12 +143,10 @@ export const Decode = async (req, res) => {
     const encodedData = JSON.parse(encodedDataMatch[1]);
     const { hash, encryptedText } = encodedData;
     let encryptedSecret = "";
-    console.log(hash);
-    console.log(encryptedText);
-    // console.log(encryptedSecret);
-    // Fetch all sessions for the receiver email from the database
+    // console.log(hash);
+    // console.log(encryptedText);
     const sessions = await Session.find({ recieverMail: recieverEmail });
-    console.log(sessions);
+    // console.log(sessions);
 
     if (!sessions || sessions.length === 0) {
       return res.status(404).json({ msg: "No secrets found for this image" });
@@ -172,14 +154,13 @@ export const Decode = async (req, res) => {
 
     let validSession = null;
 
-    // Decrypt the secret UUID using the master key
     let secretUUID;
 
     //  if (!secretUUID) {
     //    return res.status(400).json({ msg: "Failed to decrypt secret key" });
     //  }
 
-    // Loop through all sessions and validate hash
+  
     for (const session of sessions) {
       encryptedSecret = session.randomNumber;
 
@@ -188,46 +169,33 @@ export const Decode = async (req, res) => {
         process.env.MASTER_KEY
       ).toString(CryptoJS.enc.Utf8);
 
-      console.log(randomNumberDecrypt);
+      // console.log(randomNumberDecrypt);
       secretUUID = randomNumberDecrypt;
 
       const combinedString = `${session.senderMail}:${session.recieverMail}:${secretUUID}`;
 
-      // const combinedStringHash = bcrypt.hashSync(combinedString, 12);
-      // Compare the plain combined string against the saved hash
-
-      console.log(combinedString);
+      // console.log(combinedString);
       if (bcrypt.compareSync(combinedString, hash)) {
-        console.log(true);
+        // console.log(true);
         validSession = session;
 
         break;
       }
     }
 
-    console.log("valid session : ", validSession);
+    // console.log("valid session : ", validSession);
 
     if (!validSession) {
       return res.status(400).json({ msg: "No secrets found for this image" });
     }
 
-    // Decrypt the secret UUID using the master key
-    // const secretUUID = CryptoJS.AES.decrypt(
-    //   encryptedSecret,
-    //   process.env.MASTER_KEY
-    // ).toString(CryptoJS.enc.Utf8);
 
-    // if (!secretUUID) {
-    //   return res.status(400).json({ msg: "Failed to decrypt secret key" });
-    // }
-
-    // Decrypt the text using the decrypted secretUUID
     const decryptedText = CryptoJS.AES.decrypt(
       encryptedText,
       secretUUID
     ).toString(CryptoJS.enc.Utf8);
 
-    console.log("decryptedText", decryptedText);
+    // console.log("decryptedText", decryptedText);
 
     if (!decryptedText) {
       return res
@@ -235,7 +203,7 @@ export const Decode = async (req, res) => {
         .json({ msg: "Failed to decode the secret message from the image" });
     }
 
-    // Respond with the decrypted secret text
+  
     return res.status(200).json({
       msg: "Secret Decoded Successfully",
       secretText: decryptedText,
@@ -256,12 +224,12 @@ export const Destroy = async (req, res) => {
   }
 
   try {
-    // Extract the custom encoded data from the image
+
     const imageBuffer = req.file.buffer.toString("utf-8");
 
-    // Look for the embedded data (e.g., JSON string after the comment tag `<!--`)
+  
     const encodedDataMatch = imageBuffer.match(/<!--\s*({.*})\s*-->/);
-    // console.log("encodeed data", encodedDataMatch);
+   
     if (!encodedDataMatch) {
       return res
         .status(400)
@@ -271,12 +239,11 @@ export const Destroy = async (req, res) => {
     const encodedData = JSON.parse(encodedDataMatch[1]);
     const { hash, encryptedText } = encodedData;
     let encryptedSecret = "";
-    console.log(hash);
-    console.log(encryptedText);
-    // console.log(encryptedSecret);
-    // Fetch all sessions for the receiver email from the database
+    // console.log(hash);
+    // console.log(encryptedText);
+    
     const sessions = await Session.find({ senderMail: senderEmail });
-    console.log(sessions);
+    // console.log(sessions);
 
     if (!sessions || sessions.length === 0) {
       return res.status(404).json({ msg: "Secret already destroyed" });
@@ -284,7 +251,7 @@ export const Destroy = async (req, res) => {
 
     let validSession = null;
 
-    // Decrypt the secret UUID using the master key
+   
     let secretUUID;
     let destroySecretNumber;
     let sender;
@@ -294,7 +261,7 @@ export const Destroy = async (req, res) => {
     //    return res.status(400).json({ msg: "Failed to decrypt secret key" });
     //  }
 
-    // Loop through all sessions and validate hash
+    
     for (const session of sessions) {
       encryptedSecret = session.randomNumber;
 
@@ -303,17 +270,14 @@ export const Destroy = async (req, res) => {
         process.env.MASTER_KEY
       ).toString(CryptoJS.enc.Utf8);
 
-      console.log(randomNumberDecrypt);
+      // console.log(randomNumberDecrypt);
       secretUUID = randomNumberDecrypt;
 
       const combinedString = `${session.senderMail}:${session.recieverMail}:${secretUUID}`;
 
-      // const combinedStringHash = bcrypt.hashSync(combinedString, 12);
-      // Compare the plain combined string against the saved hash
-
-      console.log(combinedString);
+      // console.log(combinedString);
       if (bcrypt.compareSync(combinedString, hash)) {
-        console.log(true);
+        // console.log(true);
         validSession = session;
         destroySecretNumber = session.randomNumber;
         sender = session.senderMail;
@@ -322,28 +286,17 @@ export const Destroy = async (req, res) => {
       }
     }
 
-    console.log("valid session : ", validSession);
+    // console.log("valid session : ", validSession);
 
     if (!validSession) {
       return res.status(400).json({ msg: "Secret already destroyed" });
     }
 
-    // Decrypt the secret UUID using the master key
-    // const secretUUID = CryptoJS.AES.decrypt(
-    //   encryptedSecret,
-    //   process.env.MASTER_KEY
-    // ).toString(CryptoJS.enc.Utf8);
-
-    // if (!secretUUID) {
-    //   return res.status(400).json({ msg: "Failed to decrypt secret key" });
-    // }
-
-    // Decrypt the text using the decrypted secretUUID
     const destroySessions = await Session.deleteMany({
       randomNumber: destroySecretNumber,
     });
 
-    //Mail reciever and sender that secret is destroyed
+    
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -367,9 +320,9 @@ export const Destroy = async (req, res) => {
 
       attachments: [
         {
-          filename: "destroyed_secret.jpg", // The name of the file that will appear in the email
-          content: req.file.buffer, // Raw image buffer from multer
-          contentType: req.file.mimetype, // Dynamically setting MIME type (e.g., image/jpeg or image/png)
+          filename: "destroyed_secret.jpg", 
+          content: req.file.buffer, 
+          contentType: req.file.mimetype, 
         },
       ],
     };
@@ -381,7 +334,7 @@ export const Destroy = async (req, res) => {
       }
     });
 
-    // Respond with the decrypted secret text
+  
     return res.status(200).json({
       msg: "Destroy successful",
     });
@@ -422,9 +375,9 @@ export const mailReciever = async (req, res) => {
     `,
     attachments: [
       {
-        filename: "encoded_image.jpg", // The name of the file that will appear in the email
-        content: req.file.buffer, // Raw image buffer from multer
-        contentType: req.file.mimetype, // Dynamically setting MIME type (e.g., image/jpeg or image/png)
+        filename: "encoded_image.jpg", 
+        content: req.file.buffer, 
+        contentType: req.file.mimetype, 
       },
     ],
   };
@@ -439,12 +392,12 @@ export const mailReciever = async (req, res) => {
 };
 
 export const mailRecieverSecret = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { secret, email } = req?.body;
 
-  console.log("Mail Reciever Secret");
-  console.log(secret);
-  console.log(email);
+  console.log("Mailing Reciever Secret");
+  // console.log(secret);
+  // console.log(email);
 
   if (!email || !secret) {
     return res.status(400).json({ msg: "Email is required" });
