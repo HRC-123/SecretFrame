@@ -12,7 +12,7 @@ dotenv.config();
 const __dirname = path.resolve();
 app.use(
   cors({
-    origin: process.env.origin,
+    origin: "https://secretframe.onrender.com/",
     methods: ["GET", "POST", "PUT", "DELETE"], 
     allowedHeaders: ["Content-Type", "Authorization"],
   })
