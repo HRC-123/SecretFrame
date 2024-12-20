@@ -76,6 +76,42 @@ Whether you’re a business professional, a journalist, or just someone who valu
 
 ---
 
+
+## Installation
+
+Use the package manager [npm](https://www.npmjs.com/) to install Secret Frame.
+
+```bash
+# Clone the repo
+git clone https://github.com/HRC-123/SecretFrame.git
+
+# Navigate to client and install the packages required in terminal 1
+cd frontend
+npm install
+
+# Navigate to client and install the packages required in terminal 2
+cd backend
+npm install
+
+# Prerequisites before using the app
+
+
+# Go to backend/index.js
+# Replace the origin with -  origin: "http://localhost:3000",
+
+_Please create env files as required_
+```
+
+## Usage
+
+```bash
+# In terminal 1 i.e frontend
+npm start
+
+# In terminal 2 i.e backend
+node index.js
+```
+
 ## Authors  
 
 - [HRC-123](https://github.com/HRC-123)  
