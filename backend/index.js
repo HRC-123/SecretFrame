@@ -11,7 +11,7 @@ const app = express();
 const __dirname = path.resolve();
 app.use(
   cors({
-    origin: "https://secretframe.onrender.com",
+    origin: process.env.origin,
   })
 );
 app.use(bodyParser.json({ extended: true }));
