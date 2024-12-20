@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://secretframeserver.onrender.com",
   "dependencies": {
     "@lucide/lab": "^0.1.2",
     "@react-oauth/google": "^0.12.1",
