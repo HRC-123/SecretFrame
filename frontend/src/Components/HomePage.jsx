@@ -242,7 +242,7 @@ const HomePage = () => {
           <h1 className="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
             Secret Frame
             <span className="block text-2xl font-medium text-blue-600 mt-3">
-              Invisible. Secure. Unbreakable.
+              Privacy in every Pixel.
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
